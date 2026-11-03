@@ -2,6 +2,12 @@
 
 Live tracking and prediction of bus and tram delays in Gdańsk and Gdynia.
 
+## MVP scope (due 13 Dec 2026)
+- **In:** live delays for Gdańsk + Gdynia buses and trams, joined with weather data, shown on a Streamlit dashboard.
+- **Stretch:** SKM (train) real-time data.
+- **Out (for now):** delay prediction model; it comes after the MVP.
+
+
 ## Architecture
 
 _Coming soon._
@@ -23,17 +29,21 @@ _Coming soon._
    uv sync
    ```
 
-3. Install the git hooks:
+3. Install the git hooks and copy .env.example to .env:
 
    ```bash
    uv run python -m pre_commit install
+   cp .env.example .env
    ```
 
 4. Run all checks manually:
 
    ```bash
    uv run python -m pre_commit run --all-files
+   uv run pytest
    ```
+
+   Both should pass. If they do, you're ready to open your first PR.
 
 ## Project structure
 
@@ -58,4 +68,4 @@ _Coming soon._
 ## Team
 
 - Illia Święcicki
-- Wlad
+- Vlad Zemliakov
