@@ -14,3 +14,4 @@ jobs:
       - run: uv sync                     # 3. install Python 3.12 + deps from uv.lock
       - run: uv run pre-commit run --all-files   # 4. ruff + other hooks
       - run: uv run ruff check .                 # 5. lint again (clear error output)
+      - run: uv run pytest
