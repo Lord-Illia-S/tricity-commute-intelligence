@@ -1,0 +1,16 @@
+name: CI                      # name shown in GitHub's "Actions" tab
+
+on:                           # WHEN it runs
+  pull_request:               # on every PR
+  push:
+    branches: [main]          # and on every push to main
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest    # GitHub gives us a fresh Linux machine
+    steps:
+      - uses: actions/checkout@v4        # 1. download our code
+      - uses: astral-sh/setup-uv@v6      # 2. install uv
+      - run: uv sync                     # 3. install Python 3.12 + deps from uv.lock
+      - run: uv run pre-commit run --all-files   # 4. ruff + other hooks
+      - run: uv run ruff check .                 # 5. lint again (clear error output)
