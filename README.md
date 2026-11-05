@@ -21,6 +21,8 @@ _Coming soon._
 ## Getting started
 
 1. Install uv: see the [installation guide](https://docs.astral.sh/uv/getting-started/installation/).
+For Windows: powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+For Linux/Mac: curl -LsSf https://astral.sh/uv/install.sh | sh
 2. Clone the repo and install dependencies:
 
    ```bash
