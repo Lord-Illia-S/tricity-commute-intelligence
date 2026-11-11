@@ -9,8 +9,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "gtfs-realtime-bindings>=3.0.0",
+    "ipykernel>=7.4.0",
+    "jupyter>=1.1.1",
     "pre-commit>=4.7.0",
     "pytest>=9.2.0",
+    "requests>=2.34.2",
     "ruff>=0.17.3",
 ]
 
