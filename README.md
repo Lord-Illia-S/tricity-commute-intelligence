@@ -47,6 +47,16 @@ For Linux/Mac: curl -LsSf https://astral.sh/uv/install.sh | sh
 
    Both should pass. If they do, you're ready to open your first PR.
 
+To download static GTFS run the command:
+   ```bash
+   uv run ingestion/download_static_gtfs.py
+   ```
+To test the downloading without acces to the internet(using MagicMock and patch) run the command:
+   ```bash
+   uv run pytest
+   ```
+
+
 ## Project structure
 
 ```
@@ -61,7 +71,9 @@ docs/adr/        # architecture decision records
 
 ## Data sources
 
-_Coming soon._
+1. Gdansk static GTFS: https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/30e783e4-2bec-4a7d-bb22-ee3e3b26ca96/download/gtfsgoogle.zip
+2. Gdynia static GTFS: https://api.zdiz.gdynia.pl/pt/gtfs.zip
+3. SKM static GTFS:  https://www.skm.pkp.pl/gtfs-mi-kpd.zip
 
 ## Roadmap
 
