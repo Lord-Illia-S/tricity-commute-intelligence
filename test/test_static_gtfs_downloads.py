@@ -1,10 +1,11 @@
 from datetime import date
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from ingestion.download_static_gtfs import download_gtfs
 
 
-def test_download_static_gtfs(tmp_path):
+def test_download_static_gtfs(tmp_path: Path) -> None:
     test_response = MagicMock()
     test_response.content = b"test text fro staatic gtfs download"
 
