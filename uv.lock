@@ -1999,6 +1999,7 @@ name = "tricity-commute-intelligence"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "gtfs-realtime-bindings" },
     { name = "pandas" },
     { name = "requests" },
 ]
@@ -2016,6 +2017,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "gtfs-realtime-bindings", specifier = ">=3.0.0" },
     { name = "pandas", specifier = ">=3.1.0" },
     { name = "requests", specifier = ">=2.34.2" },
 ]
