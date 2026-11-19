@@ -2108,6 +2108,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "boto3" },
+    { name = "gtfs-realtime-bindings" },
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "python-dotenv" },
@@ -2116,7 +2117,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "gtfs-realtime-bindings" },
     { name = "ipykernel" },
     { name = "jupyter" },
     { name = "pre-commit" },
@@ -2128,6 +2128,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "boto3", specifier = ">=1.44.5" },
+    { name = "gtfs-realtime-bindings", specifier = ">=3.0.0" },
     { name = "pandas", specifier = ">=3.1.0" },
     { name = "pyarrow", specifier = ">=26.0.1" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
@@ -2136,7 +2137,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "gtfs-realtime-bindings", specifier = ">=3.0.0" },
     { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "pre-commit", specifier = ">=4.7.0" },
