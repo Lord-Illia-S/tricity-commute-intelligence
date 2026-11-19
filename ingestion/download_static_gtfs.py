@@ -1,3 +1,4 @@
+import zipfile
 from datetime import date
 from pathlib import Path
 
@@ -23,8 +24,12 @@ def download_gtfs(base_dir=Path("data/static")):
                 response_gtfs.raise_for_status()
                 file_name.parent.mkdir(parents=True, exist_ok=True)
                 file_name.write_bytes(response_gtfs.content)
-            except requests.exceptions.RequestException as error:
-                print(f"{origin}: URL failed ({error}), skipping")
+                with zipfile.ZipFile(file_name) as z:
+                    z.extractall(file_name.parent)
+            except (requests.exceptions.RequestException, zipfile.BadZipFile) as error:
+                print(f"{origin}: failed ({error}), skipping")
+                if (file_name.parent / "stops.txt").exists():
+                    file_name.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,7 @@
+tci:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../../data/tci.duckdb
+      threads: 1
