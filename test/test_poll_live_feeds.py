@@ -10,8 +10,11 @@ def test_fetch_and_save_writes_file(tmp_path):
     now = datetime(2026, 11, 15, 20, 0, 5, tzinfo=timezone.utc)
 
     with patch("ingestion.poll_live_feeds.requests.get", return_value=fake):
-        path = fetch_and_save("https://example.com", tmp_path, now)
+        path_json = fetch_and_save("https://example.com", tmp_path, now, ".json")
+        path_pb = fetch_and_save("https://example.com", tmp_path, now, ".pb")
 
-    assert path == tmp_path / "20261115" / "200005Z.json"
+    assert path_json == tmp_path / "20261115" / "200005Z.json"
+    assert path_pb == tmp_path / "20261115" / "200005Z.pb"
 
-    assert path.read_bytes() == fake.content
+    assert path_json.read_bytes() == fake.content
+    assert path_pb.read_bytes() == fake.content
