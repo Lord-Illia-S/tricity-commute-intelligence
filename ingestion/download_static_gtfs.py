@@ -28,8 +28,8 @@ def download_gtfs(base_dir=Path("data/static")):
                     z.extractall(file_name.parent)
             except (requests.exceptions.RequestException, zipfile.BadZipFile) as error:
                 print(f"{origin}: failed ({error}), skipping")
-            except requests.exceptions.RequestException as error:
-                print(f"{origin}: URL failed ({error}), skipping")
+                if (file_name.parent / "stops.txt").exists():
+                    file_name.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
