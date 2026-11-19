@@ -5,6 +5,7 @@ requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.44.5",
     "dbt-duckdb>=1.7.5",
+    "gtfs-realtime-bindings>=3.0.0",
     "pandas>=3.1.0",
     "pyarrow>=26.0.1",
     "python-dotenv>=1.2.4",
@@ -13,7 +14,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "gtfs-realtime-bindings>=3.0.0",
     "ipykernel>=7.4.0",
     "jupyter>=1.1.1",
     "pre-commit>=4.7.0",
