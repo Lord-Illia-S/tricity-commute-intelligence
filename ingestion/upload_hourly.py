@@ -18,7 +18,7 @@ R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY")
 R2_BUCKET = os.getenv("R2_BUCKET")
 
 
-def files_for_hour(base_dir: Path, hour: datetime, ext: str = "json"):
+def files_for_hour(base_dir: Path, hour: datetime, ext: str = ".json"):
     folder = base_dir / hour.strftime("%Y%m%d")
     return sorted(folder.glob(hour.strftime("%H") + "*" + ext))
 
@@ -79,14 +79,21 @@ def upload(table, hour, feed):
     s3.put_object(Bucket=R2_BUCKET, Key=key, Body=buf.getvalue())
 
 
+FEEDS = [
+    ("gdansk", Path("data/raw/gdansk"), ".json", to_table),
+    ("gdansk_trip_updates", Path("data/raw/gdansk_trip_updates"), ".pb", trip_updates_to_table),
+]
+
 if __name__ == "__main__":
     hour = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0) - timedelta(
         hours=1
     )
-    files = files_for_hour(Path("data/raw/gdansk"), hour, ".json")
-    if len(files) == 0:
-        print(f"No files found for hour {hour:%Y-%m-%d %H}:00 UTC")
-    else:
-        upload(to_table(files), hour, "gdansk")
-        for f in files:
-            f.unlink()
+
+    for name, base_dir, ext, parse in FEEDS:
+        files = files_for_hour(base_dir, hour, ext)
+        if len(files) == 0:
+            print(f"{name}: No files found for hour {hour:%Y-%m-%d %H}:00 UTC")
+        else:
+            upload(parse(files), hour, name)
+            for f in files:
+                f.unlink()
