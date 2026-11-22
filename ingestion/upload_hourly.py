@@ -1,7 +1,7 @@
 import io
 import json
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 import boto3
@@ -79,21 +79,27 @@ def upload(table, hour, feed):
     s3.put_object(Bucket=R2_BUCKET, Key=key, Body=buf.getvalue())
 
 
+def pending_hours(base_dir, ext, now):
+    hours = set()
+    current_hour = now.replace(minute=0, second=0, microsecond=0)
+    for file in base_dir.glob("*/*" + ext):
+        file_name = file.parent.name + file.stem[:2]
+        parsed_file = datetime.strptime(file_name, "%Y%m%d%H").replace(tzinfo=timezone.utc)
+        if parsed_file < current_hour:
+            hours.add(parsed_file)
+    return sorted(hours)
+
+
 FEEDS = [
     ("gdansk", Path("data/raw/gdansk"), ".json", to_table),
     ("gdansk_trip_updates", Path("data/raw/gdansk_trip_updates"), ".pb", trip_updates_to_table),
 ]
 
 if __name__ == "__main__":
-    hour = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0) - timedelta(
-        hours=1
-    )
-
+    now = datetime.now(timezone.utc)
     for name, base_dir, ext, parse in FEEDS:
-        files = files_for_hour(base_dir, hour, ext)
-        if len(files) == 0:
-            print(f"{name}: No files found for hour {hour:%Y-%m-%d %H}:00 UTC")
-        else:
+        for hour in pending_hours(base_dir, ext, now):
+            files = files_for_hour(base_dir, hour, ext)
             upload(parse(files), hour, name)
             for f in files:
                 f.unlink()
