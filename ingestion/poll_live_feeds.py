@@ -4,6 +4,8 @@ from pathlib import Path
 
 import requests
 
+from ingestion.gdynia import fetch_gdynia, save_raw
+
 FEEDS = [
     ("https://ckan2.multimediagdansk.pl/gpsPositions?v=2", Path("data/raw/gdansk"), ".json"),
     (
@@ -26,6 +28,7 @@ def fetch_and_save(url: str, base_dir: Path, now: datetime, ext: str = ".json") 
 
 if __name__ == "__main__":
     wait = 20.0
+    last_gdynia = 0.0
 
     while True:
         try:
@@ -37,7 +40,11 @@ if __name__ == "__main__":
                 except requests.RequestException as e:
                     print(e)
                     failed = True
-
+            if (time.monotonic() - last_gdynia) >= 120.0:
+                data = fetch_gdynia()
+                if data:
+                    save_raw(data)
+                last_gdynia = time.monotonic()
             wait = min(wait * 2, 300) if failed else 20.0
             time.sleep(wait)
         except KeyboardInterrupt:
