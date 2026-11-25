@@ -8,13 +8,15 @@ import boto3
 import dotenv
 import pyarrow.parquet as pq
 
+from ingestion.upload_hourly import FEEDS
+
 dotenv.load_dotenv()
 
 ENDPOINT = os.getenv("R2_ENDPOINT")
 R2_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY_ID")
 R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY")
 R2_BUCKET = os.getenv("R2_BUCKET")
-EXPECTED_FEEDS = ["gdansk"]
+EXPECTED_FEEDS = [name for name, *_ in FEEDS]
 
 
 def list_keys(s3, day):
@@ -33,6 +35,18 @@ def count_rows(s3, keys):
     return rows
 
 
+def check_feeds(rows, expected, day):
+    empty_rows = []
+    for feed in expected:
+        count = rows.get(feed, 0)
+        if count == 0:
+            print(f"ALERT: {feed} has 0 rows on {day:%Y-%m-%d}")
+            empty_rows.append(feed)
+        else:
+            print(f"{day:%Y-%m-%d} {feed}: {count} rows")
+    return empty_rows
+
+
 if __name__ == "__main__":
     s3 = boto3.client(
         "s3",
@@ -45,14 +59,8 @@ if __name__ == "__main__":
     day = datetime.now(timezone.utc) - timedelta(days=1)
     # day = datetime.now(timezone.utc)
     rows = count_rows(s3, list_keys(s3, day=day))
-    failed = False
-    for feed in EXPECTED_FEEDS:
-        count = rows.get(feed, 0)
-        if count == 0:
-            print(f"ALERT: {feed} has 0 rows on {day:%Y-%m-%d}")
-            failed = True
-        else:
-            print(f"{day:%Y-%m-%d} {feed}: {count} rows")
 
-    if failed:
+    empty_rows = check_feeds(rows, EXPECTED_FEEDS, day)
+
+    if len(empty_rows) > 0:
         sys.exit(1)
