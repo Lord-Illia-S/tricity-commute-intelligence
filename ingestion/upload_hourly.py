@@ -1,8 +1,9 @@
 import io
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import boto3
 import dotenv
@@ -16,6 +17,7 @@ ENDPOINT = os.getenv("R2_ENDPOINT")
 R2_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY_ID")
 R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY")
 R2_BUCKET = os.getenv("R2_BUCKET")
+WARSAW = ZoneInfo("Europe/Warsaw")
 
 
 def files_for_hour(base_dir: Path, hour: datetime, ext: str = ".json"):
@@ -65,6 +67,46 @@ def trip_updates_to_table(files):
     return pyarrow.Table.from_pylist(rows)
 
 
+def hhmm_to_utc(hhmm: str, ref: datetime) -> datetime:
+    hour, minutes = hhmm.split(":")
+    t = ref.replace(hour=int(hour), minute=int(minutes), second=0)
+    if t - ref < -timedelta(hours=12):
+        t += timedelta(days=1)
+    if t - ref > timedelta(hours=12):
+        t -= timedelta(days=1)
+    return t.astimezone(timezone.utc)
+
+
+def gdynia_to_table(files):
+    rows = []
+    for file in files:
+        data = json.loads(file.read_text(encoding="utf-8"))
+        fetched_at = datetime.strptime(file.parent.name + file.stem, "%Y%m%d%H%M%SZ").replace(
+            tzinfo=timezone.utc
+        )
+        for stop_id, stop_data in data.items():
+            ref = datetime.strptime(stop_data["lastUpdate"], "%Y-%m-%d %H:%M:%S").replace(
+                tzinfo=WARSAW
+            )
+            for d in stop_data.get("delay", []):
+                rows.append(
+                    {
+                        "stop_id": stop_id,
+                        "trip_id": d.get("trip"),
+                        "route_id": d.get("routeId"),
+                        "vehicle_id": d.get("vehicleId"),
+                        "delay_seconds": d.get("delayInSeconds"),
+                        "status": d.get("status"),
+                        "theoretical_at": hhmm_to_utc(d["theoreticalTime"], ref),
+                        "estimated_at": hhmm_to_utc(d["estimatedTime"], ref),
+                        "last_update": ref.astimezone(timezone.utc),
+                        "fetched_at": fetched_at,
+                    }
+                )
+
+    return pyarrow.Table.from_pylist(rows)
+
+
 def upload(table, hour, feed):
     buf = io.BytesIO()
     pq.write_table(table, buf)
@@ -93,6 +135,7 @@ def pending_hours(base_dir, ext, now):
 FEEDS = [
     ("gdansk", Path("data/raw/gdansk"), ".json", to_table),
     ("gdansk_trip_updates", Path("data/raw/gdansk_trip_updates"), ".pb", trip_updates_to_table),
+    ("gdynia", Path("data/raw/gdynia"), ".json", gdynia_to_table),
 ]
 
 if __name__ == "__main__":
