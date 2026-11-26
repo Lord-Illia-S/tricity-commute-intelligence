@@ -2,42 +2,91 @@ version: 2
 
 models:
   - name: stg_stops
+    description: "Bus and tram stops from the static GTFS feeds of Gdańsk and Gdynia. One row per stop, per city, per snapshot date."
     columns:
       - name: stop_id
+        description: "Stop ID from the city's GTFS feed. Unique only together with city and snapshot_date."
         tests: [not_null]
+      - name: stop_name
+        description: "Public name of the stop, as shown to passengers."
+      - name: stop_lat
+        description: "Latitude of the stop (WGS84)."
+      - name: stop_lon
+        description: "Longitude of the stop (WGS84)."
       - name: city
+        description: "Which city's feed the row comes from: gdansk or gdynia."
         tests:
           - not_null
           - accepted_values:
               values: ['gdansk', 'gdynia']
+      - name: snapshot_date
+        description: "Date of the static GTFS snapshot the row was read from."
+
   - name: stg_routes
+    description: "Bus and tram lines from the static GTFS feeds. One row per route, per city, per snapshot date."
     columns:
       - name: route_id
-        tests: [ not_null ]
+        description: "Route ID from the city's GTFS feed. Unique only together with city and snapshot_date."
+        tests: [not_null]
+      - name: route_short_name
+        description: "Line number shown to passengers, e.g. 8 or N1."
+      - name: route_long_name
+        description: "Full route name, usually the start and end stops."
+      - name: route_type
+        description: "GTFS vehicle type code: 0 is tram, 3 is bus, 11 is trolleybus."
       - name: city
+        description: "Which city's feed the row comes from: gdansk or gdynia."
         tests:
           - not_null
           - accepted_values:
-              values: [ 'gdansk', 'gdynia' ]
+              values: ['gdansk', 'gdynia']
+      - name: snapshot_date
+        description: "Date of the static GTFS snapshot the row was read from."
+
   - name: stg_trips
+    description: "Planned trips, meaning one vehicle run along a route. One row per trip, per city, per snapshot date."
     columns:
       - name: route_id
-        tests: [ not_null ]
+        description: "Route this trip belongs to. Links to stg_routes."
+        tests: [not_null]
+      - name: service_id
+        description: "Service calendar ID that says which days the trip runs, e.g. weekdays or Sundays."
       - name: trip_id
-        tests: [ not_null ]
+        description: "Trip ID from the city's GTFS feed. Unique only together with city and snapshot_date."
+        tests: [not_null]
+      - name: trip_headsign
+        description: "Destination text shown on the front of the vehicle."
+      - name: direction_id
+        description: "Direction of travel on the route: 0 or 1."
       - name: city
+        description: "Which city's feed the row comes from: gdansk or gdynia."
         tests:
           - not_null
           - accepted_values:
-              values: [ 'gdansk', 'gdynia' ]
+              values: ['gdansk', 'gdynia']
+      - name: snapshot_date
+        description: "Date of the static GTFS snapshot the row was read from."
+
   - name: stg_stop_times
+    description: "Planned arrival and departure times for each stop on each trip. One row per trip, per stop sequence, per city, per snapshot date."
     columns:
       - name: trip_id
-        tests: [ not_null ]
+        description: "Trip this stop time belongs to. Links to stg_trips."
+        tests: [not_null]
+      - name: arrival_time
+        description: "Planned arrival time as text (HH:MM:SS, local time). Can go past 24:00 for trips running after midnight."
+      - name: departure_time
+        description: "Planned departure time as text (HH:MM:SS, local time). Can go past 24:00 for trips running after midnight."
       - name: stop_id
-        tests: [ not_null ]
+        description: "Stop the vehicle calls at. Links to stg_stops."
+        tests: [not_null]
+      - name: stop_sequence
+        description: "Order of this stop within the trip, counting up from the first stop."
       - name: city
+        description: "Which city's feed the row comes from: gdansk or gdynia."
         tests:
           - not_null
           - accepted_values:
-              values: [ 'gdansk', 'gdynia' ]
+              values: ['gdansk', 'gdynia']
+      - name: snapshot_date
+        description: "Date of the static GTFS snapshot the row was read from."
