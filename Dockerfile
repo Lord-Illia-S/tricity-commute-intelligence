@@ -3,4 +3,4 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 COPY ingestion/ ./ingestion/
-CMD [ "uv", "run", "--no-sync", "python", "ingestion/poll_live_feeds.py"]
+CMD ["uv", "run", "--no-sync", "python", "-m", "ingestion.poll_live_feeds"]
