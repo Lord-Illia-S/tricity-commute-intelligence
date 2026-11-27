@@ -56,6 +56,18 @@ To test the downloading without acces to the internet(using MagicMock and patch)
    uv run pytest
    ```
 
+## Sample data (no keys needed)
+
+`test/fixtures/tci_sample.duckdb` is a small sample of real data for both cities:
+live Gdańsk vehicles and trip updates, Gdynia delays, and 5 routes per city from static GTFS
+(with their trips, stop_times and stops). Open it with:
+
+```bash
+uv run python -c "import duckdb; print(duckdb.connect('test/fixtures/tci_sample.duckdb').sql('show tables'))"
+```
+
+To rebuild it (needs local poller and static GTFS data): `uv run python -m ingestion.build_fixture`
+
 
 ## Project structure
 
